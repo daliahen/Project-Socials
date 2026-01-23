@@ -1,6 +1,7 @@
 package org.example.backend.controllers;
 
 import org.example.backend.Request.UpdateProfileImageReq;
+import org.example.backend.Response.LoginResponse;
 import org.example.backend.Response.SearchUserResponse;
 import org.example.backend.entities.User;
 
@@ -12,7 +13,6 @@ import org.example.backend.services.UserService;
 
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
@@ -40,7 +40,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public BasicResponse login(@RequestBody AuthRequest request) {
+    public LoginResponse login(@RequestBody AuthRequest request) {
         return userService.login(request.getUsername(), request.getPassword());
     }
 
