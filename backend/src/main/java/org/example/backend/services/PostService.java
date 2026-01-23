@@ -7,8 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static org.example.backend.Response.Error.ERROR_MISSING_AUTHOR_USER_ID;
-import static org.example.backend.Response.Error.ERROR_MISSING_POST_TEXT;
+import static org.example.backend.Response.Error.*;
 //אחראי ליצור פוסט נצטרך לוודא שפוסט לא ריק ושהוא תקין ולדעת מי כתב אותו
 //createPost
 
@@ -25,11 +24,18 @@ public class PostService {
 
     private DbUtils dbUtils;
 
+    public PostService(DbUtils dbUtils) {
+        this.dbUtils = dbUtils;
+    }
 
     public BasicResponse createPost(long authorUserId, String text) {
 
         if (authorUserId <= 0) {
             return new BasicResponse(false, ERROR_MISSING_AUTHOR_USER_ID);
+        }
+
+        if (dbUtils.getUserById(authorUserId) == null){
+            return new BasicResponse(false, ERROR_USER_NOT_FOUND);
         }
 
         if (text == null || text.trim().isEmpty()) {

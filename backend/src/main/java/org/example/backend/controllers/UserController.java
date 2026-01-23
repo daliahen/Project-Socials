@@ -48,6 +48,4 @@ public class UserController {
     public BasicResponse updateProfileImage(@RequestBody UpdateProfileImageReq request) {
         return userService.updateProfileImage(request.getUserId() , request.getImageUrl());
     }
-
-
 }

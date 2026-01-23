@@ -13,25 +13,62 @@ import java.util.List;
 @Component
 public class DbUtils { // כל השאילתות יעברו לפה , צריך להגיד איך מתחברים לDATABASE
 
-
     private Connection connection;
 
     @PostConstruct // תרוץ מיד שאפליקציה עולה
     public void init() {
-        String host = "localhost";
         String username = "root";
         String password = "1234";
 
-        String url = "jdbc:mysql://localhost:3306/social_project"; // נרשום פה את השם של הסכימה שלנו
+        String url = "jdbc:mysql://localhost:3306/social_project?createDatabaseIfNotExist=true"; // נרשום פה את השם של הסכימה שלנו
 
         try {
             this.connection = DriverManager.getConnection(url, username, password);
             System.out.println("Connected to database successfully");
+
+            createTables();
+
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Error connecting to the database", e);
         }
     }
 
+    private void createTables() {
+        // We use simple Statement for DDL (Data Definition Language)
+        try (Statement statement = this.connection.createStatement()) {
+
+            String usersTable = "CREATE TABLE IF NOT EXISTS users (" +
+                    "id BIGINT AUTO_INCREMENT PRIMARY KEY, " +
+                    "username VARCHAR(50) NOT NULL UNIQUE, " +
+                    "password VARCHAR(255) NOT NULL, " +
+                    "image_url VARCHAR(512)" +
+                    ")";
+            statement.execute(usersTable);
+
+            String postsTable = "CREATE TABLE IF NOT EXISTS posts (" +
+                    "id BIGINT AUTO_INCREMENT PRIMARY KEY, " +
+                    "author_user_id BIGINT NOT NULL, " +
+                    "text TEXT, " +
+                    "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                    "FOREIGN KEY (author_user_id) REFERENCES users(id) ON DELETE CASCADE" +
+                    ")";
+            statement.execute(postsTable);
+
+            String followersTable = "CREATE TABLE IF NOT EXISTS followers (" +
+                    "follower_user_id BIGINT NOT NULL, " +
+                    "followed_user_id BIGINT NOT NULL, " +
+                    "PRIMARY KEY (follower_user_id, followed_user_id), " +
+                    "FOREIGN KEY (follower_user_id) REFERENCES users(id) ON DELETE CASCADE, " +
+                    "FOREIGN KEY (followed_user_id) REFERENCES users(id) ON DELETE CASCADE" +
+                    ")";
+            statement.execute(followersTable);
+
+            System.out.println("Database tables verified/created successfully");
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error creating tables", e);
+        }
+    }
 
     public void createUserOnDb(User user) {
         try {
@@ -47,7 +84,6 @@ public class DbUtils { // כל השאילתות יעברו לפה , צריך ל�
             throw new RuntimeException(e);
         }
     }
-
 
     public List<User> getAllUsers() {
         try {
@@ -107,7 +143,6 @@ public class DbUtils { // כל השאילתות יעברו לפה , צריך ל�
         }
     }
 
-
     public User getUserById(long userId) {
         try {
             PreparedStatement preparedStatement = this.connection.prepareStatement("SELECT id, username, password, image_url FROM users WHERE id = ?");
@@ -164,10 +199,10 @@ public class DbUtils { // כל השאילתות יעברו לפה , צריך ל�
         }
     }
 
-    //posts
-
     public void createPostOnDb(long authorUserId, String text) {
         try {
+            System.out.println("User id: " + authorUserId + ", text: " + text);
+
             PreparedStatement preparedStatement = this.connection.prepareStatement("INSERT INTO posts(author_user_id, text)" + "VALUES (? , ?)");
 
             preparedStatement.setLong(1, authorUserId);
@@ -178,7 +213,6 @@ public class DbUtils { // כל השאילתות יעברו לפה , צריך ל�
             throw new RuntimeException(e);
         }
     }
-
 
     private Post mapResultSetToPost(ResultSet resultSet) {
         try {
@@ -197,7 +231,6 @@ public class DbUtils { // כל השאילתות יעברו לפה , צריך ל�
             throw new RuntimeException(e);
         }
     }
-
 
     public List<Post> getAllPosts(long authorUserId) {
 
@@ -234,11 +267,6 @@ public class DbUtils { // כל השאילתות יעברו לפה , צריך ל�
             throw new RuntimeException(e);
         }
     }
-
-
-
-    // followers
-
 
     public void follow(long followerUserId , long followedUserId) {
         try {
@@ -299,7 +327,6 @@ public class DbUtils { // כל השאילתות יעברו לפה , צריך ל�
         }
     }
 
-
     public boolean isFollowing(long followerUserId , long followedUserId) {
         try {
             PreparedStatement preparedStatement = this.connection
@@ -312,13 +339,6 @@ public class DbUtils { // כל השאילתות יעברו לפה , צריך ל�
             throw new RuntimeException(e);
         }
     }
-
-
-
-
-
-
-
 }
 
 

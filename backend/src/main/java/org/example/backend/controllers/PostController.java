@@ -19,7 +19,6 @@ public class PostController {
     @PostMapping("/create")
     public BasicResponse createPost(@RequestBody CreatePostRequest request) {
         return postService.createPost(request.getAuthorUserId(), request.getText());
-
     }
 
     @GetMapping("/by-user/{userId}")

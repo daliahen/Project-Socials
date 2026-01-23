@@ -20,7 +20,6 @@ public class UserService {
 
     private DbUtils dbUtils;
 
-
     public UserService(DbUtils dbUtils) {
         this.dbUtils = dbUtils;
     }
