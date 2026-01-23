@@ -1,9 +1,7 @@
 import axios from 'axios';
 import {useEffect} from "react";
 
-
 const api = axios.create({baseURL:"http://localhost:8080"});
-
 
 //זה מבחינת USERS
 export function register(username, password){

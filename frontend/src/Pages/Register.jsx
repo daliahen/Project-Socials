@@ -14,17 +14,17 @@ function Register() {
     const [loading, setLoading] = useState(false);//שומר שלא ילחצו בזמן שהשרת עובד
     const [errorMsg, setErrorMsg] = useState("");//שומר שיהיה למשתמש מה לקרוא אם משהו נכשל
 
-    async function handleRegister() {
+    async function handleRegister(event) {
+        event.preventDefault();
         setErrorMsg("");
 
 
-    if (username.trim() === "" || password.trim() === "") {
-        setErrorMsg("Please fill Username and Password");
-        return;
-    }
+        if (username.trim() === "" || password.trim() === "") {
+            setErrorMsg("Please fill Username and Password");
+            return;
+        }
 
-    setLoading(true); // המערכת עובדת עכשיו
-
+        setLoading(true); // המערכת עובדת עכשיו
 
         try {
             const response = await register(username, password);
@@ -44,36 +44,39 @@ function Register() {
 
     return(
 
-        <div>
-            <h1>Register</h1>
+        <form onSubmit={handleRegister}>
 
-            <Inputs
-                label={"Username"}
-                value={username}
-                onChange={(event) => setUserName(event.target.value)}
-                placeholder={"enter username"}
-                disabled={loading}
-            />
+                <h2>Register</h2>
 
-            <Inputs
-                label={"Password"}
-                type={"password"}
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                placeholder={"enter password"}
-                disabled={loading}
-            />
+                <Inputs
+                    label={"Username"}
+                    value={username}
+                    onChange={(event) => setUserName(event.target.value)}
+                    placeholder={"enter username"}
+                    disabled={loading}
+                />
 
-            {errorMsg && <div style={{ color: "red" }}>{errorMsg}</div>}
+                <Inputs
+                    label={"Password"}
+                    type={"password"}
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    placeholder={"enter password"}
+                    disabled={loading}
+                />
 
-            <Buttons text={"Register"}
-                     onClick={handleRegister}
-                     loading={loading}/>
+                {errorMsg && <div style={{ color: "red" }}>{errorMsg}</div>}
 
-            <Buttons text={"Already have an account ?  Login"}
-            onClick={() =>navigate("/login")}
-            disabled={loading}/>
-        </div>
+                <Buttons text={"Register"}
+                         type={"submit"}
+                         loading={loading}
+                         disabled={loading}/>
+
+                <Buttons text={"Already have an account ?  Login"}
+                         onClick={() =>navigate("/login")}
+                         disabled={loading}/>
+
+        </form>
     )
 
 }export default Register;
