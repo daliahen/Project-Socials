@@ -1,4 +1,4 @@
-package Request;
+package org.example.backend.Request;
 
 public class CreatePostRequest {
     private long authorUserId;

@@ -1,4 +1,4 @@
-package Response;
+package org.example.backend.Response;
 
 import org.example.backend.entities.Post;
 

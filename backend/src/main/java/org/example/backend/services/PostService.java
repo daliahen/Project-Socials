@@ -1,15 +1,14 @@
 package org.example.backend.services;
 
-import Response.BasicResponse;
-import Utils.DbUtils;
+import org.example.backend.Response.BasicResponse;
+import org.example.backend.Utils.DbUtils;
 import org.example.backend.entities.Post;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import static Response.Error.ERROR_MISSING_AUTHOR_USER_ID;
-import static Response.Error.ERROR_MISSING_POST_TEXT;
+import static org.example.backend.Response.Error.ERROR_MISSING_AUTHOR_USER_ID;
+import static org.example.backend.Response.Error.ERROR_MISSING_POST_TEXT;
 //אחראי ליצור פוסט נצטרך לוודא שפוסט לא ריק ושהוא תקין ולדעת מי כתב אותו
 //createPost
 
@@ -24,20 +23,20 @@ import static Response.Error.ERROR_MISSING_POST_TEXT;
 @Service
 public class PostService {
 
-    private DbUtils  dbUtils;
+    private DbUtils dbUtils;
 
 
-    public BasicResponse createPost(long authorUserId , String text){
+    public BasicResponse createPost(long authorUserId, String text) {
 
-        if (authorUserId <= 0){
-            return new BasicResponse(false , ERROR_MISSING_AUTHOR_USER_ID);
+        if (authorUserId <= 0) {
+            return new BasicResponse(false, ERROR_MISSING_AUTHOR_USER_ID);
         }
 
-        if (text == null || text.trim().isEmpty()){
-            return new BasicResponse(false , ERROR_MISSING_POST_TEXT);
+        if (text == null || text.trim().isEmpty()) {
+            return new BasicResponse(false, ERROR_MISSING_POST_TEXT);
         }
-        dbUtils.createPostOnDb(authorUserId , text.trim());
-        return new BasicResponse(true , null);
+        dbUtils.createPostOnDb(authorUserId, text.trim());
+        return new BasicResponse(true, null);
     }
 
     public List<Post> getPostsByUserId(long authorUserId) {

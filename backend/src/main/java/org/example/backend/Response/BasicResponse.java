@@ -1,4 +1,4 @@
-package Response;
+package org.example.backend.Response;
 
 public class BasicResponse {
     private boolean success;

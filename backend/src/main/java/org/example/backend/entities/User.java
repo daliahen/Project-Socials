@@ -14,11 +14,11 @@ public class User {
         this.userId = userId;
     }
 
-    public User(){
+    public User() {
 
     }
 
-    public User(String name, String password ) {
+    public User(String name, String password) {
         this.username = name;
         this.password = password;
 
