@@ -1,6 +1,7 @@
 package org.example.backend.services;
 
 import org.example.backend.Response.BasicResponse;
+import org.example.backend.Response.LoginResponse;
 import org.example.backend.Utils.DbUtils;
 import org.example.backend.entities.User;
 import org.example.backend.Utils.PasswordUtils;
@@ -64,26 +65,33 @@ public class UserService {
     }
 
 
-    public BasicResponse login(String username, String password) {
+    public LoginResponse login(String username, String password) {
         BasicResponse validation = validateUsernameAndPassword(username, password);
-        if (validation != null) {
-            return validation;
+        if (!validation.isSuccess()) {
+            return new LoginResponse(false , validation.getErrorCode(), null , null);
         }
 
-        String cleanUsername = username.trim();
-        String cleanPassword = password.trim();
-
-        User user = dbUtils.getUserByUsername(cleanUsername);
+        User user = dbUtils.getUserByUsername(username);
         if (user == null) {
-            return new BasicResponse(false, ERROR_USER_NOT_FOUND);
+            return new LoginResponse(false , ERROR_USER_NOT_FOUND, null,null);
         }
 
-        String hashedInput = PasswordUtils.hash(cleanPassword);
-        if (user.getPassword() == null || !user.getPassword().equals(hashedInput)) {
-            return new BasicResponse(false, ERROR_WRONG_PASSWORD);
+        String hashedInputPassword = PasswordUtils.hash(password);
+        if (!user.getPassword().equals(hashedInputPassword)) {
+            return new LoginResponse(false , ERROR_WRONG_PASSWORD , null,null);
         }
 
-        return new BasicResponse(true, null);
+        long createdAt = System.currentTimeMillis();
+        long expiresAt = createdAt + (60 * 60 * 1000);
+
+        String tokenSource =
+                user.getUsername() + " : " +
+                user.getUserId() + " : " +
+                createdAt + " : " +
+                expiresAt;
+
+        String token = PasswordUtils.hash(tokenSource);
+        return new LoginResponse(true,null,token , expiresAt);
     }
 
     public BasicResponse updateProfileImage(long userId, String imageUrl) {
