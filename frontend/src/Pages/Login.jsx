@@ -31,15 +31,8 @@ function Login() {
             const data = response.data;
 
             if (data.success) {
-                // 2. Prepare user data
-                // (If your API returns a user object, use data.user. Otherwise, create one)
-                const userData = data.user || { username: username };
-
-                // 3. Update Context
-                // This function automatically sets the Cookie, LocalStorage, and State
-                login(data.token, userData);
-
-                // 4. Navigate
+                login(data.token, data.user);
+                // console.log("Logged in user:", data.user);
                 navigate("/dashboard");
             } else {
                 setErrorMsg("לא הצלחת להתחבר");
