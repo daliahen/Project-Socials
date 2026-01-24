@@ -3,16 +3,11 @@ package org.example.backend.controllers;
 import org.example.backend.Request.UpdateProfileImageReq;
 import org.example.backend.Response.LoginResponse;
 import org.example.backend.Response.SearchUserResponse;
-import org.example.backend.entities.User;
-
 import org.example.backend.Request.AuthRequest;
 import org.example.backend.Response.AllUsersResponse;
 import org.example.backend.Response.BasicResponse;
-
 import org.example.backend.services.UserService;
-
 import org.springframework.web.bind.annotation.*;
-
 
 @RestController
 @RequestMapping("/api/users")
