@@ -1,4 +1,7 @@
 import './App.css'
+import "./Styles/Theme.css";
+import "./Styles/Inputs.css";
+import "./Styles/Buttons.css";
 import {BrowserRouter, Route, Routes} from "react-router-dom";
 import Register from "./Pages/Register.jsx";
 import Login from "./Pages/Login.jsx";

@@ -1,0 +1,135 @@
+/* Instagram-like auth with purple vibe + NO CUT */
+
+
+
+.authPage{
+    min-height: 100dvh;                 /* יותר נכון מ-100vh */
+    display:flex;
+    justify-content:center;
+    align-items: flex-start;            /* תמיד למעלה */
+    padding: 32px 16px 40px;
+    overflow-y: auto;
+}
+
+.authWrap{
+    width: min(420px, 100%);
+    display:flex;
+    flex-direction:column;
+    gap: 12px;
+}
+
+.authCard{
+    width: 100%;
+    background: rgba(255,255,255,0.92);
+    border: 1px solid rgba(15,23,42,0.10);
+    border-radius: 18px;
+    box-shadow: var(--shadow-1);
+    padding: 26px 22px;
+    text-align: left;            /* מבטל "מרכוז" מוזר */
+    backdrop-filter: blur(10px);
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+.authCard:hover{
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-2);
+
+}
+
+.authBrand{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.authLogo{
+    width: 56px;
+    height: 56px;
+    border-radius: 18px;
+    background: linear-gradient(180deg, var(--primary), var(--primary-2));
+    box-shadow: 0 14px 30px rgba(124,58,237,0.22);
+}
+
+.authTitle{
+    margin: 0;
+    font-size: 26px;
+    font-weight: 950;
+    letter-spacing: 0.2px;
+}
+
+.authSubtitle{
+    margin: 0;
+    color: var(--muted);
+    font-size: 13.5px;
+    text-align:center;
+    line-height: 1.5;
+}
+
+/* Make Inputs aligned nicely */
+.authCard .field{
+    align-items: stretch;
+}
+.authCard .label{
+    text-align: left;
+}
+
+/* Full width buttons inside auth */
+.authCard button{
+    width: 100%;
+}
+
+.authForm{
+    display:flex;
+    flex-direction:column;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.authError{
+    border: 1px solid rgba(239,68,68,0.22);
+    background: rgba(239,68,68,0.08);
+    color: #b91c1c;
+    padding: 10px 12px;
+    border-radius: 14px;
+    font-size: 13px;
+}
+
+.authDivider{
+    display:flex;
+    align-items:center;
+    gap: 12px;
+    margin: 14px 0 10px;
+    color: var(--muted-2);
+    font-size: 12px;
+}
+
+.authDivider::before,
+.authDivider::after{
+    content:"";
+    height: 1px;
+    flex: 1;
+    background: rgba(15,23,42,0.10);
+}
+
+.authFooterCard{
+    width: 100%;
+    background: rgba(255,255,255,0.92);
+    border: 1px solid rgba(15,23,42,0.10);
+    border-radius: 18px;
+    box-shadow: var(--shadow-1);
+    padding: 14px 18px;
+    text-align:center;
+    color: var(--muted);
+    font-size: 13.5px;
+    backdrop-filter: blur(10px);
+}
+
+.authLink{
+    color: var(--primary);
+    font-weight: 950;
+    cursor: pointer;
+}
+.authLink:hover{
+    text-decoration: underline;
+}

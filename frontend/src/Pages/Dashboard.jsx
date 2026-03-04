@@ -1,10 +1,14 @@
 import { useEffect, useState} from "react";
+import "../Styles/Dashboard.css";
 import {Profile} from "../Components/Profile/Profile.jsx";
 import {useAuth} from "../Contexts/AuthContext.jsx";
-import {getFollowers, getFollowing , getAllUsers , searchUsers , follow , unfollow} from "../api/api.jsx";
+import {getFollowers, getFollowing , getAllUsers , searchUsers , follow , unfollow } from "../api/api.jsx";
 import UsersList from "../Components/Users/UsersList.jsx";
 import UserSearch from "../Components/Users/UserSearch.jsx";
 import UserRow from "../Components/Users/UserRow.jsx";
+import CreatePost from "../Components/Posts/CreatePost.jsx";
+import Feed from "../Components/Posts/Feed.jsx";
+import UserPosts from "../Components/Posts/UserPosts.jsx";
 
 function Dashboard(){
 
@@ -21,8 +25,11 @@ function Dashboard(){
     const [loading , setLoading] = useState(true);
     const [errorMsg , setErrorMsg] = useState("");
 
+    const [feedRefreshKey , setFeedRefreshKey] = useState(0);
+
+
     useEffect(() => {
-        async function loadFollowersData() {
+        async function loadDashboardData() {
             setLoading(true);
             setErrorMsg("");
 
@@ -50,9 +57,10 @@ function Dashboard(){
                 setLoading(false);
             }
         }
-        loadFollowersData();
 
+        loadDashboardData();
     }, [user]);
+
 
 
     async function refreshFollowingOnly(){ //חרי שאני עושה Follow למישהו אני רוצה לעדכן את הרשימה של followingIds מהשרת
@@ -116,6 +124,20 @@ function Dashboard(){
         return doFollowAction(unfollow, targetUserId);
     }
 
+    function formatPostTime(createdAt) {
+        if (!createdAt){
+            return "Unknown time";
+        }
+        const postDate = new Date(createdAt)
+        if (Number.isNaN(postDate.getTime())){
+            return "Invalid";
+        }
+        return postDate.toLocaleString();
+    }
+
+    function handlePostCreated(){
+        setFeedRefreshKey(prev => prev + 1);
+    }
 
     const followingSet = new Set(followingIds);
     const followersSet = new Set(followersIds);
@@ -125,64 +147,116 @@ function Dashboard(){
 
     const canRender = !loading && !errorMsg;
 
+
+    const userByIdMap = {};
+    allUsers.forEach((userObject) => {
+        userByIdMap[userObject.userId] = userObject;
+    });
+
     return(
-        <div className="dashboard">
-            <h2>Dashboard</h2>
 
-            {loading && <div>Loading...</div>}
-            {errorMsg && <div style={{ color: "red" }}>{errorMsg}</div>}
+        <div className="dashboardPage">
+            <div className="dashboardShell">
+
+                <header className="dashHeader">
+                    <div>
+                        <h2 className="dashTitle">Dashboard</h2>
+                        <div className="dashSub">Your feed, posts and connections :) </div>
+                    </div>
+
+                    <div className="dashHeaderRight">
+                    </div>
+                </header>
+
+                {loading && <div className="dashNotice">Loading...</div>}
+                {errorMsg && <div className="dashError">{errorMsg}</div>}
+
+                {canRender && (
+                    <div className="dashGrid">
 
 
-                {!loading  && !errorMsg && (
-                    <Profile
-                        initUsername={user?.username || ""}
-                        initImage={user?.imageUrl || ""}
-                        initFollowing={followingUsers}
-                        initFollowers={followersUsers}
-                    />
+                        {/* left */}
+                        <div className="dashCol">
+                            <section className="dashCard">
+                                <Profile
+                                    initUsername={user?.username || ""}
+                                    initImage={user?.imageUrl || ""}
+                                    initFollowing={followingUsers}
+                                    initFollowers={followersUsers}
+                                />
+                            </section>
+
+                            <section className="dashCard">
+                                <CreatePost
+                                    currentUserId={user.userId}
+                                    onPostCreated={handlePostCreated}
+                                />
+                            </section>
+
+                            <section className="dashCard">
+                                <Feed
+                                    currentUserId={user.userId}
+                                    usersById={userByIdMap}
+                                    refreshKey={feedRefreshKey}
+                                />
+                            </section>
+                        </div>
+
+
+                        <section className="dashCard">
+                            <UserPosts
+                                currentUserId={user.userId}
+                                usersById={userByIdMap}
+                                refreshToken={feedRefreshKey} // שימוש באותו מפתח רענון
+                            />
+                        </section>
+
+                        {/* right */}
+                        <aside className="dashSide">
+                            <section className="dashCard">
+                                <h3 className="dashSectionTitle">Following</h3>
+
+
+                                {followingUsers.length === 0 ? (
+                                    <div className="dashMuted">No users to display…</div>
+                                ) : (
+                                    <div className="dashList">
+                                        {followingUsers.map((userObject) => (
+                                            <UserRow
+                                                key={userObject.userId}
+                                                user={userObject}
+                                                myUserId={user.userId}
+                                                isFollowing={true}
+                                                onFollow={handleFollow}
+                                                onUnfollow={handleUnfollow}
+                                            />
+                                        ))}
+                                    </div>
+                                )}
+                            </section>
+
+                            <section className="dashCard">
+                                <UsersList title="Followers" users={followersUsers} />
+                            </section>
+
+                            <section className="dashCard">
+                                <UserSearch
+                                    myUserId={user.userId}
+                                    followingIds={followingIds}
+                                    results={searchResults}
+                                    loading={searchLoading}
+                                    error={searchError}
+                                    onSearch={handleSearch}
+                                    onFollow={handleFollow}
+                                    onUnfollow={handleUnfollow}
+                                />
+                            </section>
+                        </aside>
+
+                    </div>
                 )}
 
-
-            {canRender && (
-                <div className="users-list">
-                    <h3>Following</h3>
-
-                    {followingUsers.length === 0 ? (
-                        <div style={{ opacity: 0.7 }}>no users to display..</div>
-                    ) : (
-                        followingUsers.map((u) => (
-                            <UserRow
-                                key={u.userId}
-                                user={u}
-                                myUserId={user.userId}
-                                isFollowing={true}
-                                onFollow={handleFollow}
-                                onUnfollow={handleUnfollow}
-                            />
-                        ))
-                    )}
-                </div>
-            )}
-
-
-            {canRender  &&(
-                <UsersList title="Followers" users={followersUsers} />
-            )}
-
-
-            {canRender &&(
-                <UserSearch
-                    myUserId = {user.userId}
-                    followingIds = {followingIds}
-                    results={searchResults}
-                    loading={searchLoading}
-                    error={searchError}
-                    onSearch={handleSearch}
-                    onFollow={handleFollow}
-                    onUnfollow={handleUnfollow}
-                />
-            )}
-
+            </div>
         </div>
-    )
+    );
 }export default Dashboard;

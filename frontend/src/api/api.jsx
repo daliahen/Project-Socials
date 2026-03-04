@@ -1,7 +1,34 @@
 import axios from 'axios';
-import {useEffect} from "react";
+import Cookies from "js-cookie";
 
 const api = axios.create({baseURL:"http://localhost:8080"});
+
+api.interceptors.request.use(
+    (config) => {
+        const token = Cookies.get('token');
+        if (token){
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    } ,
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
+api.interceptors.response.use(
+    (response) => {
+        //אם תשובה תקינה אני פשוט מחזירה אותה
+        return response;
+    } ,
+    (error) => {
+        if (error.response && error.response.status === 401){
+            Cookies.remove('token');
+            window.location.heref = '/login';
+        }
+        return Promise.reject(error);
+    }
+)
 
 //זה מבחינת USERS
 export function register(username, password){

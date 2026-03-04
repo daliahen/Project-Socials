@@ -1,5 +1,6 @@
 package org.example.backend.services;
 
+import org.example.backend.JWT.JwtUtil;
 import org.example.backend.Response.BasicResponse;
 import org.example.backend.Response.LoginResponse;
 import org.example.backend.Response.UserPublic;
@@ -21,9 +22,11 @@ import static org.example.backend.Response.Error.ERROR_WRONG_PASSWORD;
 public class UserService {
 
     private DbUtils dbUtils;
+    private JwtUtil jwtUtil;
 
-    public UserService(DbUtils dbUtils) {
+    public UserService(DbUtils dbUtils,  JwtUtil jwtUtil) {
         this.dbUtils = dbUtils;
+        this.jwtUtil = jwtUtil;
     }
 
     private BasicResponse validateUsernameAndPassword(String username, String password) {
@@ -69,32 +72,24 @@ public class UserService {
     public LoginResponse login(String username, String password) {
         BasicResponse validation = validateUsernameAndPassword(username, password);
         if (validation != null) {
-            return new LoginResponse(false , validation.getErrorCode(), null , null , null);
+            return new LoginResponse(false , validation.getErrorCode(), null , null);
         }
 
         User user = dbUtils.getUserByUsername(username);
         if (user == null) {
-            return new LoginResponse(false , ERROR_USER_NOT_FOUND, null,null , null);
+            return new LoginResponse(false , ERROR_USER_NOT_FOUND, null,null);
         }
 
         String hashedInputPassword = PasswordUtils.hash(password);
         if (!user.getPassword().equals(hashedInputPassword)) {
-            return new LoginResponse(false , ERROR_WRONG_PASSWORD , null,null , null);
+            return new LoginResponse(false , ERROR_WRONG_PASSWORD , null,null);
         }
 
-        long createdAt = System.currentTimeMillis();
-        long expiresAt = createdAt + (60 * 60 * 1000);
-
-        String tokenSource =
-                user.getUsername() + " : " +
-                user.getUserId() + " : " +
-                createdAt + " : " +
-                expiresAt;
-
-        String token = PasswordUtils.hash(tokenSource);
+        String token = jwtUtil.generateToken(username);
 
         UserPublic userPublic = new UserPublic(user.getUserId() , user.getUsername() , user.getImageURL());
-        return new LoginResponse(true,null,token , expiresAt , userPublic);
+        System.out.println("user " + user.getUsername() + " logged successfully");
+        return new LoginResponse(true,null,token , userPublic);
     }
 
     public BasicResponse updateProfileImage(long userId, String imageUrl) {

@@ -1,5 +1,6 @@
 package org.example.backend.controllers;
 
+import org.example.backend.JWT.JwtUtil;
 import org.example.backend.Request.UpdateProfileImageReq;
 import org.example.backend.Response.LoginResponse;
 import org.example.backend.Response.SearchUserResponse;
@@ -14,18 +15,27 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+    private final JwtUtil jwtUtil;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService , JwtUtil jwtUtil) {
         this.userService = userService;
+        this.jwtUtil = jwtUtil;
     }
 
     @GetMapping("/search")
-    public SearchUserResponse searchUsers(@RequestParam String text){
-        return new SearchUserResponse(true , null , userService.searchUsers(text));
+    public SearchUserResponse searchUsers(@RequestHeader(value = "Authorization", required = false) String authHeader
+            ,@RequestParam String text) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ") || !jwtUtil.isTokenValid(authHeader.substring(7))) {
+            return new SearchUserResponse(false, null, null);
+        }
+        return new SearchUserResponse(true, null, userService.searchUsers(text));
     }
 
     @GetMapping("/all")
-    public AllUsersResponse getAllUsers() {
+    public AllUsersResponse getAllUsers(@RequestHeader(value = "Authorization", required = false) String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ") || !jwtUtil.isTokenValid(authHeader.substring(7))) {
+            return new AllUsersResponse(false, null, null);
+        }
         return new AllUsersResponse(true, null, userService.getAllUsers());
     }
 
@@ -36,11 +46,16 @@ public class UserController {
 
     @PostMapping("/login")
     public LoginResponse login(@RequestBody AuthRequest request) {
+        System.out.println("user " + request.getUsername() + "trying to connect");
         return userService.login(request.getUsername(), request.getPassword());
     }
 
     @PutMapping("/profile-image")
-    public BasicResponse updateProfileImage(@RequestBody UpdateProfileImageReq request) {
+    public BasicResponse updateProfileImage(@RequestHeader(value = "Authorization", required = false) String authHeader
+            ,@RequestBody UpdateProfileImageReq request) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ") || !jwtUtil.isTokenValid(authHeader.substring(7))) {
+            return new SearchUserResponse(false, null, null);
+        }
         return userService.updateProfileImage(request.getUserId() , request.getImageUrl());
     }
 }

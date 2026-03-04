@@ -1,9 +1,16 @@
-function Inputs({label, value , onChange , type = "text"
-                    ,placeholder = "" , disabled = false }){
-    return(
-        <div>
-            {label && <div>{label}</div>}
+function Inputs({
+                    label,
+                    value,
+                    onChange,
+                    type = "text",
+                    placeholder = "",
+                    disabled = false
+                }) {
+    return (
+        <div className="field">
+            {label && <div className="label">{label}</div>}
             <input
+                className="input"
                 type={type}
                 value={value}
                 onChange={onChange}
@@ -11,5 +18,7 @@ function Inputs({label, value , onChange , type = "text"
                 disabled={disabled}
             />
         </div>
-    )
-}export default Inputs;
+    );
+}
+
+export default Inputs;
