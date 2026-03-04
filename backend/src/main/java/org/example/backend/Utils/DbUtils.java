@@ -88,14 +88,13 @@ public class DbUtils { // כל השאילתות יעברו לפה , צריך ל�
     public List<User> getAllUsers() {
         try {
             List<User> users = new ArrayList<>();
-            PreparedStatement preparedStatement = this.connection.prepareStatement("SELECT id , username , password , image_url FROM users");
+            PreparedStatement preparedStatement = this.connection.prepareStatement("SELECT id , username , image_url FROM users");
 
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 User user = new User();
                 user.setUserId(resultSet.getLong("id"));
                 user.setUsername(resultSet.getString("username"));
-                user.setPassword(resultSet.getString("password"));
                 user.setImageURL(resultSet.getString("image_url"));
                 users.add(user);
             }

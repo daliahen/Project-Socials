@@ -2,6 +2,7 @@ package org.example.backend.services;
 
 import org.example.backend.Response.BasicResponse;
 import org.example.backend.Response.LoginResponse;
+import org.example.backend.Response.UserPublic;
 import org.example.backend.Utils.DbUtils;
 import org.example.backend.entities.User;
 import org.example.backend.Utils.PasswordUtils;
@@ -67,18 +68,18 @@ public class UserService {
 
     public LoginResponse login(String username, String password) {
         BasicResponse validation = validateUsernameAndPassword(username, password);
-        if (!validation.isSuccess()) {
-            return new LoginResponse(false , validation.getErrorCode(), null , null);
+        if (validation != null) {
+            return new LoginResponse(false , validation.getErrorCode(), null , null , null);
         }
 
         User user = dbUtils.getUserByUsername(username);
         if (user == null) {
-            return new LoginResponse(false , ERROR_USER_NOT_FOUND, null,null);
+            return new LoginResponse(false , ERROR_USER_NOT_FOUND, null,null , null);
         }
 
         String hashedInputPassword = PasswordUtils.hash(password);
         if (!user.getPassword().equals(hashedInputPassword)) {
-            return new LoginResponse(false , ERROR_WRONG_PASSWORD , null,null);
+            return new LoginResponse(false , ERROR_WRONG_PASSWORD , null,null , null);
         }
 
         long createdAt = System.currentTimeMillis();
@@ -91,7 +92,9 @@ public class UserService {
                 expiresAt;
 
         String token = PasswordUtils.hash(tokenSource);
-        return new LoginResponse(true,null,token , expiresAt);
+
+        UserPublic userPublic = new UserPublic(user.getUserId() , user.getUsername() , user.getImageURL());
+        return new LoginResponse(true,null,token , expiresAt , userPublic);
     }
 
     public BasicResponse updateProfileImage(long userId, String imageUrl) {
